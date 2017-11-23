@@ -39,7 +39,7 @@ app.use(layouts);
 const index = require('./routes/index');
 app.use('/', index);
 
-const yelpRouter = require('./routes/yelp');
+const yelpRouter = require('./routes/yelp-router');
 app.use('/api', yelpRouter);
 
 // catch 404 and forward to error handler

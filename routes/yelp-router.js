@@ -1,6 +1,9 @@
 const express = require('express');
-const router  = express.Router();
+const yelpRouter  = express.Router();
 
-router.get('/', (req, res,next) => {
+yelpRouter.get('/', (req, res,next) => {
     res.send('hi');
 });
+
+
+module.exports = yelpRouter;

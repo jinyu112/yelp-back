@@ -1,8 +1,33 @@
-const express = require('express');
-const yelpRouter  = express.Router();
+'use strict';
 
-yelpRouter.get('/', (req, res,next) => {
-    res.send('hi');
+const express     = require('express');
+const yelpRouter  = express.Router();
+const yelp        = require('yelp-fusion');
+
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+let token;
+let client;
+
+yelp.accessToken(clientId, clientSecret)
+    .then(response => {
+        token = response.jsonBody.access_token;
+        client = yelp.client(token);
+    })
+    .catch(e => {
+        console.log(e);
+    });
+
+
+yelpRouter.get('/', (req, res, next) => {
+    client.search({
+        term:'bubble tea',
+        location: 'san francisco, ca'
+    }).then(response => {
+        res.send(response.jsonBody.businesses);
+    }).catch(e => {
+        console.log(e);
+    });
 });
 
 

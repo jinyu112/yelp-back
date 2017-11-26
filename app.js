@@ -7,8 +7,10 @@ const bodyParser   = require('body-parser');
 const layouts      = require('express-ejs-layouts');
 const cors         = require('cors');
 const mongoose     = require('mongoose');
+const env          = require('dotenv');
 
 const app = express();
+require('dotenv').config(); 
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/yelpdb')

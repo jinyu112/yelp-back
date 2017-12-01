@@ -19,10 +19,10 @@ yelp.accessToken(clientId, clientSecret)
     });
 
 
-yelpRouter.get('/', (req, res, next) => {
+yelpRouter.post('/', (req, res, next) => {
     client.search({
-        term:'bubble tea',
-        location: 'san francisco, ca'
+        term: req.body.term,
+        location: req.body.location
     }).then(response => {
         res.send(response.jsonBody.businesses);
     }).catch(e => {

@@ -18,7 +18,7 @@ yelp.accessToken(clientId, clientSecret)
         console.log(e);
     });
 
-
+//Search for business
 yelpRouter.post('/', (req, res, next) => {
     client.search({
         term: req.body.term,

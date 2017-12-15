@@ -2,50 +2,160 @@
 
 // GA.js
 
-var BUDGET = 78;
+var BUDGETMAX = 100;
+var BUDGETMIN = 85;
+
 var allData = {
-  Event1: ["golf", "swimming", "jogging", "stroll", "laughing", "none"],
-  Event1Cost: [10, 5, 0, 0, 0, 0],
-  Event1Rating: [1, 1, 1, 1, 1, 1],
-  Breakfast: ["Tiffany's", "McDonalds", "BK", "iHop", "KeKes", "none"],
-  BreakfastCost: [10, 5, 5, 8, 12, 0],
-  BreakfastRating: [4.4, 3.5, 3.3, 3.9, 4.1, 0],
-  Event2: ["Movie", "Park", "Zoo", "Gym", "Art walk", "none"],
-  Event2Cost: [12, 0, 35, 10, 0, 0],
-  Event2Rating: [1, 1, 1, 1, 1, 1],
-  Lunch: ["MD", "Chiptole", "Taco Bell", "Cafe", "Subway", "none"],
-  LunchCost: [7, 9, 7, 14, 7, 0],
-  LunchRating: [3.3, 4.0, 3.5, 4.1, 3.8, 0],
-  Event3: ["Hang Out", "Walk", "Netflix", "Hike", "Sailing", "none"],
-  Event3Cost: [1, 1, 10, 5, 18, 0],
-  Event3Rating: [1, 1, 1, 1, 2, 1],
-  Dinner: ["Fancy1", "Fancy2", "Fancy3", "Fancy4", "Fancy5", "none"],
-  DinnerCost: [18, 20, 15, 25, 35, 20, 0],
-  DinnerRating: [4.3, 4.4, 4.2, 4.0, 4.9, 4.6, 1],
-  Event4: ["Dancing", "Bar", "Club", "Painting", "Gallery", "none"],
-  Event4Cost: [5, 25, 30, 23, 10, 0],
-  Event4Rating: [1, 2, 2.1, 1.9, 1, 1]
+  Event1: [{ name: "golf", cost: 10, rating: 1 },
+  { name: "swimming", cost: 5, rating: 1 },
+  { name: "jogging", cost: 0, rating: 10 },
+  { name: "stroll", cost: 0, rating: 1 },
+  { name: "laughing", cost: 0, rating: 1 },
+  { name: "none", cost: 0, rating: 1 }],
+  Breakfast: [{ name: "Tiffany's", cost: 10, rating: 4.4 },
+  { name: "McDonalds", cost: 5, rating: 3.5 },
+  { name: "BK", cost: 5, rating: 30.3 },
+  { name: "iHop", cost: 8, rating: 3.9 },
+  { name: "KeKes", cost: 12, rating: 4.1 },
+  { name: "none", cost: 0, rating: 0 }],
+  Event2: [{ name: "Movie", cost: 12, rating: 1 },
+  { name: "Park", cost: 0, rating: 1 },
+  { name: "Zoo", cost: 35, rating: 1 },
+  { name: "Gym", cost: 10, rating: 1 },
+  { name: "Art walk", cost: 0, rating: 1 },
+  { name: "none", cost: 0, rating: 1 }],
+  Lunch: [{ name: "MD", cost: 7, rating: 3.3 },
+  { name: "Chiptole", cost: 9, rating: 4.0 },
+  { name: "Taco Bell", cost: 7, rating: 3.5 },
+  { name: "Cafe", cost: 14, rating: 4.1 },
+  { name: "Subway", cost: 7, rating: 3.8 },
+  { name: "none", cost: 0, rating: 0 }],
+  Event3: [{ name: "Hang Out", cost: 1, rating: 1 },
+  { name: "Walk", cost: 1, rating: 1 },
+  { name: "Netflix", cost: 10, rating: 1 },
+  { name: "Hike", cost: 5, rating: 1 },
+  { name: "Sailing", cost: 18, rating: 2 },
+  { name: "none", cost: 0, rating: 1 }],
+  Dinner: [{ name: "Fancy1", cost: 18, rating: 4.3 },
+  { name: "Fancy2", cost: 20, rating: 4.4 },
+  { name: "Fancy3", cost: 15, rating: 4.2 },
+  { name: "Fancy4", cost: 25, rating: 4.0 },
+  { name: "Fancy5", cost: 35, rating: 4.9 },
+  { name: "none", cost: 0, rating: 1 }],
+  Event4: [{ name: "Dancing", cost: 5, rating: 1 },
+  { name: "Bar", cost: 25, rating: 20 },
+  { name: "Club", cost: 30, rating: 2.1 },
+  { name: "Painting", cost: 23, rating: 1.9 },
+  { name: "Gallery", cost: 10, rating: 1 },
+  { name: "none", cost: 0, rating: 1 }],
+};
+
+
+
+function preProcessData(allData_in) {
+  var parsedDataObj = {
+    numItemsArrayOut: [0, 0, 0, 0, 0, 0, 0],
+    Event1Cost: [0],
+    Event1Rating: [0],
+    BreakfastCost: [0],
+    BreakfastRating: [0],
+    Event2Cost: [0],
+    Event2Rating: [0],
+    LunchCost: [0],
+    LunchRating: [0],
+    Event3Cost: [0],
+    Event3Rating: [0],
+    DinnerCost: [0],
+    DinnerRating: [0],
+    Event4Cost: [0],
+    Event4Rating: [0]
+  };
+  try {
+    var numEvent1 = allData_in.Event1.length;
+    var event1Costs = new Array(numEvent1);
+    var event1Ratings = new Array(numEvent1);
+    event1Costs = allData_in.Event1.map(a => a.cost);
+    event1Ratings = allData_in.Event1.map(a => a.rating);
+    
+    var numBreakfast = allData_in.Breakfast.length;
+    var breakfastCosts = new Array(numBreakfast);
+    var breakfastRatings = new Array(numBreakfast);
+    breakfastCosts = allData_in.Breakfast.map(a => a.cost);
+    breakfastRatings = allData_in.Breakfast.map(a => a.rating);
+
+    var numEvent2 = allData_in.Event2.length;
+    var event2Costs = new Array(numEvent2);
+    var event2Ratings = new Array(numEvent2);
+    event2Costs = allData_in.Event2.map(a => a.cost);
+    event2Ratings = allData_in.Event2.map(a => a.rating);
+
+    var numLunch = allData_in.Lunch.length;
+    var lunchCosts = new Array(numLunch);
+    var lunchRatings = new Array(numLunch);
+    lunchCosts = allData_in.Lunch.map(a => a.cost);
+    lunchRatings = allData_in.Lunch.map(a => a.rating);
+
+    var numEvent3 = allData_in.Event3.length;
+    var event3Costs = new Array(numEvent3);
+    var event3Ratings = new Array(numEvent3);
+    event3Costs = allData_in.Event3.map(a => a.cost);
+    event3Ratings = allData_in.Event3.map(a => a.rating);
+
+    var numDinner = allData_in.Dinner.length;
+    var dinnerCosts = new Array(numDinner);
+    var dinnerRatings = new Array(numDinner);
+    dinnerCosts = allData_in.Dinner.map(a => a.cost);
+    dinnerRatings = allData_in.Dinner.map(a => a.rating);
+
+    var numEvent4 = allData_in.Event4.length;
+    var event4Costs = new Array(numEvent4);
+    var event4Ratings = new Array(numEvent4);
+    event4Costs = allData_in.Event4.map(a => a.cost);
+    event4Ratings = allData_in.Event4.map(a => a.rating);
+
+    parsedDataObj = {
+      numItemsArrayOut: [numEvent1, numBreakfast, numEvent2, numLunch, numEvent3, numDinner, numEvent4],
+      Event1Cost: event1Costs,
+      Event1Rating: event1Ratings,
+      BreakfastCost: breakfastCosts,
+      BreakfastRating: breakfastRatings,
+      Event2Cost: event2Costs,
+      Event2Rating: event2Ratings,
+      LunchCost: lunchCosts,
+      LunchRating: lunchRatings,
+      Event3Cost: event3Costs,
+      Event3Rating: event3Ratings,
+      DinnerCost: dinnerCosts,
+      DinnerRating: dinnerRatings,
+      Event4Cost: event4Costs,
+      Event4Rating: event4Ratings
+    }
+    return parsedDataObj;
+  }
+   catch (err) {
+     //error message here
+    return 0;
+   }
+
 }
+
 
 // categories: breakfast, lunch, dinner, event
 function doGA() {
 
+  // Format data
+  var parsedDataAll = preProcessData(allData);  
+  if (parsedDataAll == 0) return 0;
+
   // Initialize constants for GA
-  var maxIter = 10;                              // max iterations
+  var maxIter = 20;                               // max iterations
   var itinerarySize = 7;                          // number of things to do in the day
   var elitek = 1;                                 // number of elite iteneraries passed onto the next generation
-  var popSize = 6 + elitek;                      // population size for each generation
-  var crossRate = 100 ;//randomIntFromInterval(5, 8);    // crossover rate
-  var mutateRate = 1000; //randomIntFromInterval(10, 20);  // mutation rate
-  var numEvent1 = allData.Event1.length;
-  var numBreakfast = allData.Breakfast.length;
-  var numEvent2 = allData.Event2.length;
-  var numLunch = allData.Lunch.length;
-  var numEvent3 = allData.Event3.length;
-  var numDinner = allData.Dinner.length;
-  var numEvent4 = allData.Event4.length;
+  var popSize = 10 + elitek;                      // population size for each generation
+  var crossRate = 50;                             // crossover rate
+  var mutateRate = 85;                            // mutation rate
   var numItemsArray = new Array(itinerarySize);
-  numItemsArray = [numEvent1, numBreakfast, numEvent2, numLunch, numEvent3, numDinner, numEvent4];
+  numItemsArray = parsedDataAll.numItemsArrayOut.slice();
   var tempItinerary = new Array(itinerarySize);
   var childItinerary = new Array(itinerarySize);
   var crossedItineraryArray;
@@ -65,7 +175,7 @@ function doGA() {
   console.log(itineraryPopulation);
 
   // Find the "fittest" itinerary and return some itinerary stats
-  bestItineraryObj = findBestItinerary(itineraryPopulation, allData);
+  bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
   iBestItinerary = bestItineraryObj.bestItineraryOut;
   bestRating = bestItineraryObj.bestItineraryRatingOut;
   bestCost = bestItineraryObj.bestItineraryCostOut;
@@ -103,14 +213,14 @@ function doGA() {
       }
       else {
         iItineraryPick1 = randomIntFromInterval(0, popSize - 1);
-        iItineraryPick2 = pickRandomItineraryItemExcluding(popSize,iItineraryPick1);
+        iItineraryPick2 = pickRandomItineraryItemExcluding(popSize, iItineraryPick1);
       }
 
       var tempItinerary1 = itineraryPopulation[iItineraryPick1];
       var tempItinerary2 = itineraryPopulation[iItineraryPick2];
 
       // Crossover the two itineraries if randomly chosen to do so
-      irand = randomIntFromInterval(1, 10);
+      irand = randomIntFromInterval(1, 100);
       if (irand < crossRate) {
         crossedItineraryArray = crossover(tempItinerary1, tempItinerary2);
         tempItinerary1 = [crossedItineraryArray[0][0], crossedItineraryArray[0][1], crossedItineraryArray[0][2], crossedItineraryArray[0][3],
@@ -135,13 +245,13 @@ function doGA() {
       tempItinerary1[4], tempItinerary1[5], tempItinerary1[6]];
       newItineraryPop[popCnt + 1] = [tempItinerary2[0], tempItinerary2[1], tempItinerary2[2], tempItinerary2[3],
       tempItinerary2[4], tempItinerary2[5], tempItinerary2[6]];
-      popCnt = popCnt + 2;      
+      popCnt = popCnt + 2;
     } // end while loop
 
-    
+
 
     itineraryPopulation = newItineraryPop.slice(0);
-    bestItineraryObj = findBestItinerary(itineraryPopulation, allData);
+    bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
     iBestItinerary = bestItineraryObj.bestItineraryOut;
     bestRating = bestItineraryObj.bestItineraryRatingOut;
     console.log("best rating at " + i + "th iteration: " + bestRating);
@@ -149,7 +259,7 @@ function doGA() {
     bestCost = bestItineraryObj.bestItineraryCostOut;
     allItineraryRatings = bestItineraryObj.allItineraryRatingsOut;
     allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
-    console.log(allItineraryRatings)
+    //console.log(allItineraryRatings)
 
   } // end maxIter loop
 
@@ -159,17 +269,15 @@ function doGA() {
   console.log("best cost: " + bestCost);
   console.log()
   console.log(iBestItinerary[0]);
-  bestItinerary[0] = allData.Event1[iBestItinerary[0]];
-  bestItinerary[1] = allData.Breakfast[iBestItinerary[1]];
-  bestItinerary[2] = allData.Event2[iBestItinerary[2]];
-  bestItinerary[3] = allData.Lunch[iBestItinerary[3]];
-  bestItinerary[4] = allData.Event3[iBestItinerary[4]];
-  bestItinerary[5] = allData.Dinner[iBestItinerary[5]];
-  bestItinerary[6] = allData.Event4[iBestItinerary[6]];
+  bestItinerary[0] = allData.Event1[iBestItinerary[0]].name;
+  bestItinerary[1] = allData.Breakfast[iBestItinerary[1]].name;
+  bestItinerary[2] = allData.Event2[iBestItinerary[2]].name;
+  bestItinerary[3] = allData.Lunch[iBestItinerary[3]].name;
+  bestItinerary[4] = allData.Event3[iBestItinerary[4]].name;
+  bestItinerary[5] = allData.Dinner[iBestItinerary[5]].name;
+  bestItinerary[6] = allData.Event4[iBestItinerary[6]].name;
 
   console.log(bestItinerary);
-
-
 }
 
 // Generate a random number from min to max inclusive
@@ -227,7 +335,8 @@ function isInArray(value, array) {
 
 // Determine the "fittest" itinerary
 function findBestItinerary(itineraryPop_in, allData_in) {
-  var budget = BUDGET;
+  var budgetmax = BUDGETMAX;
+  var budgetmin = BUDGETMIN;
   var maxItineraryRating = 0;
   var itineraryRating = 0;
   var popLen = itineraryPop_in.length;
@@ -243,7 +352,10 @@ function findBestItinerary(itineraryPop_in, allData_in) {
     itineraryCost = Math.round(itineraryCost);
 
     // Set the rating of the itinerary to zero if it exceeds the budget
-    if (itineraryCost > budget) {
+    if (itineraryCost > budgetmax) {
+      itineraryRating = 0;
+    }
+    else if (itineraryCost < budgetmin) {
       itineraryRating = 0;
     }
     // Otherwise, calculate the total rating of the itinerary
@@ -315,11 +427,8 @@ function getTotalCost(itinerary_in, allData_in) {
     else {
       itineraryItemCost = allData_in.Event4Cost[itinerary_in[i]];
     }
-    //console.log(itineraryItemCost)
     totalCost = totalCost + itineraryItemCost;
   }
-
-  //console.log("totalCost: " + totalCost);
   return totalCost;
 }
 
@@ -352,7 +461,6 @@ function getTotalRating(itinerary_in, allData_in) {
     }
     totalRating = totalRating + itineraryItemRating;
   }
-  //console.log("totalRating: " + totalRating);
   totalRating = Math.round(totalRating);
   return totalRating;
 }
@@ -419,7 +527,7 @@ function crossover(itinerary1_in, itinerary2_in) {
 
 function mutate(itinerary_in, numItemsArray_in) {
   var irand = randomIntFromInterval(0, 10); // If 0-6 chosen, individual items will be mutated
-                                            // If 7-10 chosen, pairs of items will be mutated
+  // If 7-10 chosen, pairs of items will be mutated
   var iItemMutate = 0;
   var mutatedItinerary = itinerary_in.slice(0);
   // Mutate individual items
@@ -449,17 +557,15 @@ function mutate(itinerary_in, numItemsArray_in) {
     }
 
     iend = istart + 2;
-    if (irand == 10) 
-    {
+    if (irand == 10) {
       iend = istart + 1;
     }
-    
-    for (var i = istart; i < iend; i++) 
-    {
+
+    for (var i = istart; i < iend; i++) {
       iItemMutate = pickRandomItineraryItemExcluding(numItemsArray_in[i], itinerary_in[i]);
       mutatedItinerary[i] = iItemMutate;
-    }    
+    }
   }
 
-return mutatedItinerary;
+  return mutatedItinerary;
 }

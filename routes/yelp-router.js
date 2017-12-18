@@ -91,7 +91,6 @@ yelpRouter.post('/', (req, res, next) => {
 
                 for(var i = 0; i <= businesses.length; i++) {
                     var events = businesses.splice(0, numberOfItems);
-                    console.log(businesses);
                     var key =  'event' + count;
                     var eventObj = {};
                     eventObj[key] = events;

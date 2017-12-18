@@ -38,7 +38,8 @@ yelpRouter.post('/', (req, res, next) => {
         var count = 0;
 
         var numOfBiz = Math.floor(total/50);
-        for(var i = 0; i < numOfBiz; i++ ) {
+
+        for(var i = 0; i < total; i+=50) {
             client.search({
                 term: req.body.term,
                 location: req.body.location,
@@ -80,20 +81,27 @@ yelpRouter.post('/', (req, res, next) => {
         }
 
         function generateEventArrays() {
+
             if(businesses.length > 0) {
-                var itineraries = [];
+
                 var numberOfItems = Math.floor(businesses.length/7);
+                var itineraries = [];
+
                 var count = 0;
-                for(i = 0; i < businesses.length; i + 7) {
-                    count++;
-                    var hello = businesses.splice(i, numberOfItems);
-                    var eventObj = {
-                        key: 'event' + i,
-                        value: hello,
-                    }
+
+                for(var i = 0; i <= businesses.length; i++) {
+                    var events = businesses.splice(0, numberOfItems);
+                    console.log(businesses);
+                    var key =  'event' + count;
+                    var eventObj = {};
+                    eventObj[key] = events;
                     itineraries.push(eventObj);
+                    count ++;
+
+
                     if(count == 7) {
-                        console.log(itineraries);
+                        //run jimmy's function
+                        return;
                     }
                 }
 

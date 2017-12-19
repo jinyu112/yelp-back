@@ -1,56 +1,10 @@
 
-
+ module.exports = {
 // GA.js
-
-var BUDGETMAX = 100;
-var BUDGETMIN = 85;
-
-var allData = {
-  Event1: [{ name: "golf", cost: 10, rating: 1 },
-  { name: "swimming", cost: 5, rating: 1 },
-  { name: "jogging", cost: 0, rating: 10 },
-  { name: "stroll", cost: 0, rating: 1 },
-  { name: "laughing", cost: 0, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }],
-  Breakfast: [{ name: "Tiffany's", cost: 10, rating: 4.4 },
-  { name: "McDonalds", cost: 5, rating: 3.5 },
-  { name: "BK", cost: 5, rating: 30.3 },
-  { name: "iHop", cost: 8, rating: 3.9 },
-  { name: "KeKes", cost: 12, rating: 4.1 },
-  { name: "none", cost: 0, rating: 0 }],
-  Event2: [{ name: "Movie", cost: 12, rating: 1 },
-  { name: "Park", cost: 0, rating: 1 },
-  { name: "Zoo", cost: 35, rating: 1 },
-  { name: "Gym", cost: 10, rating: 1 },
-  { name: "Art walk", cost: 0, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }],
-  Lunch: [{ name: "MD", cost: 7, rating: 3.3 },
-  { name: "Chiptole", cost: 9, rating: 4.0 },
-  { name: "Taco Bell", cost: 7, rating: 3.5 },
-  { name: "Cafe", cost: 14, rating: 4.1 },
-  { name: "Subway", cost: 7, rating: 3.8 },
-  { name: "none", cost: 0, rating: 0 }],
-  Event3: [{ name: "Hang Out", cost: 1, rating: 1 },
-  { name: "Walk", cost: 1, rating: 1 },
-  { name: "Netflix", cost: 10, rating: 1 },
-  { name: "Hike", cost: 5, rating: 1 },
-  { name: "Sailing", cost: 18, rating: 2 },
-  { name: "none", cost: 0, rating: 1 }],
-  Dinner: [{ name: "Fancy1", cost: 18, rating: 4.3 },
-  { name: "Fancy2", cost: 20, rating: 4.4 },
-  { name: "Fancy3", cost: 15, rating: 4.2 },
-  { name: "Fancy4", cost: 25, rating: 4.0 },
-  { name: "Fancy5", cost: 35, rating: 4.9 },
-  { name: "none", cost: 0, rating: 1 }],
-  Event4: [{ name: "Dancing", cost: 5, rating: 1 },
-  { name: "Bar", cost: 25, rating: 20 },
-  { name: "Club", cost: 30, rating: 2.1 },
-  { name: "Painting", cost: 23, rating: 1.9 },
-  { name: "Gallery", cost: 10, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }],
-};
-
-
+doGA: function bigfunction(itineraries) {
+     var bestItinerary = doGA(itineraries);
+     var BUDGETMAX = 100;
+     var BUDGETMIN = 85;
 
 function preProcessData(allData_in) {
   var parsedDataObj = {
@@ -71,12 +25,13 @@ function preProcessData(allData_in) {
     Event4Rating: [0]
   };
   try {
+      // console.log(allData_in);
     var numEvent1 = allData_in.Event1.length;
     var event1Costs = new Array(numEvent1);
     var event1Ratings = new Array(numEvent1);
     event1Costs = allData_in.Event1.map(a => a.cost);
     event1Ratings = allData_in.Event1.map(a => a.rating);
-    
+
     var numBreakfast = allData_in.Breakfast.length;
     var breakfastCosts = new Array(numBreakfast);
     var breakfastRatings = new Array(numBreakfast);
@@ -141,11 +96,11 @@ function preProcessData(allData_in) {
 
 
 // categories: breakfast, lunch, dinner, event
-function doGA() {
+function doGA(itineraries) {
 
   // Format data
-  var parsedDataAll = preProcessData(allData);  
-  if (parsedDataAll == 0) return 0;
+  var parsedDataAll = preProcessData(itineraries);
+  // if (parsedDataAll == 0) return 0;
 
   // Initialize constants for GA
   var maxIter = 20;                               // max iterations
@@ -269,15 +224,16 @@ function doGA() {
   console.log("best cost: " + bestCost);
   console.log()
   console.log(iBestItinerary[0]);
-  bestItinerary[0] = allData.Event1[iBestItinerary[0]].name;
-  bestItinerary[1] = allData.Breakfast[iBestItinerary[1]].name;
-  bestItinerary[2] = allData.Event2[iBestItinerary[2]].name;
-  bestItinerary[3] = allData.Lunch[iBestItinerary[3]].name;
-  bestItinerary[4] = allData.Event3[iBestItinerary[4]].name;
-  bestItinerary[5] = allData.Dinner[iBestItinerary[5]].name;
-  bestItinerary[6] = allData.Event4[iBestItinerary[6]].name;
+  bestItinerary[0] = itineraries.Event1[iBestItinerary[0]].name;
+  bestItinerary[1] = itineraries.Breakfast[iBestItinerary[1]].name;
+  bestItinerary[2] = itineraries.Event2[iBestItinerary[2]].name;
+  bestItinerary[3] = itineraries.Lunch[iBestItinerary[3]].name;
+  bestItinerary[4] = itineraries.Event3[iBestItinerary[4]].name;
+  bestItinerary[5] = itineraries.Dinner[iBestItinerary[5]].name;
+  bestItinerary[6] = itineraries.Event4[iBestItinerary[6]].name;
 
   console.log(bestItinerary);
+  return bestItinerary;
 }
 
 // Generate a random number from min to max inclusive
@@ -382,7 +338,7 @@ function findBestItinerary(itineraryPop_in, allData_in) {
     bestItinerary = itineraryPop_in[0];
   }
 
-  // Return results 
+  // Return results
   return {
     bestItineraryOut: // array of indices
       [bestItinerary[0],
@@ -480,13 +436,13 @@ function rouletteSelect(allItineraryRatings_in, allItineraryRatingsSum_in) {
   return iRet;
 }
 
-// Crossover two itinerary items so that they swap characteristics 
+// Crossover two itinerary items so that they swap characteristics
 function crossover(itinerary1_in, itinerary2_in) {
   var irand = randomIntFromInterval(1, 4); //random number between 1 and 4 inclusive
   var itinerary1Org = itinerary1_in.slice(0);
   var itinerary2Org = itinerary2_in.slice(0);
 
-  // Randomly select a set of items to swap 
+  // Randomly select a set of items to swap
   if (irand == 1) {
     // Swap early items
     itinerary1_in[0] = itinerary2_in[0];
@@ -535,7 +491,7 @@ function mutate(itinerary_in, numItemsArray_in) {
     iItemMutate = pickRandomItineraryItemExcluding(numItemsArray_in[irand], itinerary_in[irand]);
     mutatedItinerary[irand] = iItemMutate;
   }
-  // Mutate pairs of items 
+  // Mutate pairs of items
   else {
     var istart;
     var iend;
@@ -568,4 +524,7 @@ function mutate(itinerary_in, numItemsArray_in) {
   }
 
   return mutatedItinerary;
+}
+res.send()
+}
 }

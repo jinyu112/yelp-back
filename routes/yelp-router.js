@@ -3,6 +3,7 @@
 const express     = require('express');
 const yelpRouter  = express.Router();
 const yelp        = require('yelp-fusion');
+const genAlgo     = require('../GA.js');
 
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
@@ -20,6 +21,7 @@ yelp.accessToken(clientId, clientSecret)
 
 //Search for business
 yelpRouter.post('/', (req, res, next) => {
+
     var total;
     client.search({
         term: req.body.term,
@@ -91,18 +93,34 @@ yelpRouter.post('/', (req, res, next) => {
 
                 for(var i = 0; i <= businesses.length; i++) {
                     var events = businesses.splice(0, numberOfItems);
-                    var key =  'event' + count;
+                    if(i == 0) {
+                        var key =  'Event1';
+                    } else if (i == 2 ) {
+                            var key =  'Event2';
+                    } else if (i == 4) {
+                            var key =  'Event3';
+                    } else if (i == 6 ) {
+                            var key =  'Event4';
+                    } else if (i == 1 ) {
+                         var key =  'Breakfast';
+                    } else if (i == 3) {
+                        var key = 'Lunch';
+                    } else {
+                        var key = 'Dinner';
+                    }
+                    // var key =  'Event' + count;
                     var eventObj = {};
                     eventObj[key] = events;
                     itineraries.push(eventObj);
                     count ++;
 
-
                     if(count == 7) {
-                        //run jimmy's function
-                        return;
+                        // genAlgo.doGA(itineraries);
+                        console.log(itineraries[0].Event1);
+
                     }
                 }
+
 
             } else {
                 res.send('No Businesses found');

@@ -1,318 +1,261 @@
-// GA.js
+module.exports = {
+    // categories: breakfast, lunch, dinner, event
+    doGA: function(allData) {
 
-var BUDGETMAX = 100;
-var BUDGETMIN = 85;
+      // Format data
+      var parsedDataAll = this.preProcessData(allData);
+      if (parsedDataAll == 0) return 0;
 
-var allData = [
-  { Event1: [
-  { name: "golf", cost: 10, rating: 1 },
-  { name: "swimming", cost: 5, rating: 1 },
-  { name: "jogging", cost: 0, rating: 10 },
-  { name: "stroll", cost: 0, rating: 1 },
-  { name: "laughing", cost: 0, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }] },
-  { Breakfast: [
-  { name: "Tiffany's", cost: 10, rating: 4.4 },
-  { name: "McDonalds", cost: 5, rating: 3.5 },
-  { name: "BK", cost: 5, rating: 30.3 },
-  { name: "iHop", cost: 8, rating: 3.9 },
-  { name: "KeKes", cost: 12, rating: 4.1 },
-  { name: "none", cost: 0, rating: 0 }] },
-  { Event2: [
-  { name: "Movie", cost: 12, rating: 1 },
-  { name: "Park", cost: 0, rating: 1 },
-  { name: "Zoo", cost: 35, rating: 1 },
-  { name: "Gym", cost: 10, rating: 1 },
-  { name: "Art walk", cost: 0, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }] },
-  { Lunch: [
-  { name: "MD", cost: 7, rating: 3.3 },
-  { name: "Chiptole", cost: 9, rating: 4.0 },
-  { name: "Taco Bell", cost: 7, rating: 3.5 },
-  { name: "Cafe", cost: 14, rating: 4.1 },
-  { name: "Subway", cost: 7, rating: 3.8 },
-  { name: "none", cost: 0, rating: 0 }] },
-  { Event3: [
-  { name: "Hang Out", cost: 1, rating: 1 },
-  { name: "Walk", cost: 1, rating: 1 },
-  { name: "Netflix", cost: 10, rating: 1 },
-  { name: "Hike", cost: 5, rating: 1 },
-  { name: "Sailing", cost: 18, rating: 2 },
-  { name: "none", cost: 0, rating: 1 }] },
-  { Dinner: [
-  { name: "Fancy1", cost: 18, rating: 4.3 },
-  { name: "Fancy2", cost: 20, rating: 4.4 },
-  { name: "Fancy3", cost: 15, rating: 4.2 },
-  { name: "Fancy4", cost: 25, rating: 4.0 },
-  { name: "Fancy5", cost: 35, rating: 4.9 },
-  { name: "none", cost: 0, rating: 1 }] },
-  { Event4: [
-  { name: "Dancing", cost: 5, rating: 1 },
-  { name: "Bar", cost: 25, rating: 20 },
-  { name: "Club", cost: 30, rating: 2.1 },
-  { name: "Painting", cost: 23, rating: 1.9 },
-  { name: "Gallery", cost: 10, rating: 1 },
-  { name: "none", cost: 0, rating: 1 }] },
-];
+      // Initialize constants for GA
+      var maxIter = 6000;                               // max iterations
+      var itinerarySize = 7;                          // number of things to do in the day
+      var elitek = 1;                                 // number of elite iteneraries passed onto the next generation
+      var popSize = 10 + elitek;                      // population size for each generation
+      var crossRate = 50;                             // crossover rate (%)
+      var mutateRate = 85;                            // mutation rate (%)
+      var numItemsArray = new Array(itinerarySize);
+      numItemsArray = parsedDataAll.numItemsArrayOut.slice();
+      var tempItinerary = new Array(itinerarySize);
+      var childItinerary = new Array(itinerarySize);
+      var itineraryPopulation = new Array(popSize);   // population array (array of arrays)
+      var newItineraryPop = new Array(popSize);
+      var allItineraryRatings = new Array(popSize);
+      var allItineraryRatingsSum = 0;
+      var bestItinerary = new Array(itinerarySize);
+      var crossedItineraryArray;
+      var iBestItinerary;
+      var bestItineraryObj;
+      var bestRating;
+      var bestCost;
+      var irand;
+
+      // Create first population to initialize GA
+      itineraryPopulation = this.initializePopulation(popSize, itinerarySize, numItemsArray);
+      // console.log(itineraryPopulation);
+
+      // Find the "fittest" itinerary and return some itinerary stats
+      bestItineraryObj       = findBestItinerary(itineraryPopulation, parsedDataAll);
+      iBestItinerary         = bestItineraryObj.bestItineraryOut;
+      bestRating             = bestItineraryObj.bestItineraryRatingOut;
+      bestCost               = bestItineraryObj.bestItineraryCostOut;
+      allItineraryRatings    = bestItineraryObj.allItineraryRatingsOut;
+      allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
+
+      for (var i = 0; i < maxIter; i++) {
+        // Construct new population of itineraries
+        popCnt = 0;
+
+        // Populate with the elite itineraries first
+        for (var j = 0; j < elitek; j++) {
+          newItineraryPop[j] = [iBestItinerary[0],
+          iBestItinerary[1],
+          iBestItinerary[2],
+          iBestItinerary[3],
+          iBestItinerary[4],
+          iBestItinerary[5],
+          iBestItinerary[6]];
+          popCnt = popCnt + 1;
+        }
+
+        // Breed/select other itineraries
+        while (popCnt < popSize) {
+
+          // Pick two itineraries
+          var iItineraryPick1 = 0;
+          var iItineraryPick2 = 0;
+
+          // Use roulette selection or randomized
+          var pick = randomIntFromInterval(1, 2);
+          if (pick == 1) {
+            iItineraryPick1 = rouletteSelect(allItineraryRatings, allItineraryRatingsSum);
+            iItineraryPick2 = rouletteSelect(allItineraryRatings, allItineraryRatingsSum);
+          }
+          else {
+            iItineraryPick1 = randomIntFromInterval(0, popSize - 1);
+            iItineraryPick2 = pickRandomItineraryItemExcluding(popSize, iItineraryPick1);
+          }
+
+          var tempItinerary1 = itineraryPopulation[iItineraryPick1];
+          var tempItinerary2 = itineraryPopulation[iItineraryPick2];
+
+          // Crossover the two itineraries if randomly chosen to do so
+          irand = randomIntFromInterval(1, 100);
+          if (irand < crossRate) {
+            crossedItineraryArray = crossover(tempItinerary1, tempItinerary2);
+            tempItinerary1 = [crossedItineraryArray[0][0], crossedItineraryArray[0][1], crossedItineraryArray[0][2], crossedItineraryArray[0][3],
+            crossedItineraryArray[0][4], crossedItineraryArray[0][5], crossedItineraryArray[0][6]];
+            tempItinerary2 = [crossedItineraryArray[1][0], crossedItineraryArray[1][1], crossedItineraryArray[1][2], crossedItineraryArray[1][3],
+            crossedItineraryArray[1][4], crossedItineraryArray[1][5], crossedItineraryArray[1][6]];
+          }
+
+          // Mutate the two itineraries if randomly chosen to do so
+          irand = randomIntFromInterval(1, 100);
+          if (irand < mutateRate) {
+            tempItinerary1 = mutate(tempItinerary1, numItemsArray);
+          }
+
+          irand = randomIntFromInterval(1, 100);
+          if (irand < mutateRate) {
+            tempItinerary2 = mutate(tempItinerary2, numItemsArray);
+          }
+
+          // Append newly bred itineraries to current population
+          newItineraryPop[popCnt] = [tempItinerary1[0], tempItinerary1[1], tempItinerary1[2], tempItinerary1[3],
+          tempItinerary1[4], tempItinerary1[5], tempItinerary1[6]];
+          newItineraryPop[popCnt + 1] = [tempItinerary2[0], tempItinerary2[1], tempItinerary2[2], tempItinerary2[3],
+          tempItinerary2[4], tempItinerary2[5], tempItinerary2[6]];
+          popCnt = popCnt + 2;
+        } // end while loop
 
 
 
-function preProcessData(allData_in) {
+        itineraryPopulation = newItineraryPop.slice(0);
+        bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
+        iBestItinerary = bestItineraryObj.bestItineraryOut;
+        bestRating = bestItineraryObj.bestItineraryRatingOut;
+        // console.log("best rating at " + i + "th iteration: " + bestRating);
+        // console.log("best cost at " + i + "th iteration: " + bestCost);
+        bestCost = bestItineraryObj.bestItineraryCostOut;
+        allItineraryRatings = bestItineraryObj.allItineraryRatingsOut;
+        allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
+        //console.log(allItineraryRatings)
 
-  // Initialize return obj (unnecessary?)
-  var parsedDataObj = {
-    numItemsArrayOut: [0, 0, 0, 0, 0, 0, 0],
-    Event1Cost: [0],
-    Event1Rating: [0],
-    BreakfastCost: [0],
-    BreakfastRating: [0],
-    Event2Cost: [0],
-    Event2Rating: [0],
-    LunchCost: [0],
-    LunchRating: [0],
-    Event3Cost: [0],
-    Event3Rating: [0],
-    DinnerCost: [0],
-    DinnerRating: [0],
-    Event4Cost: [0],
-    Event4Rating: [0]
-  };
-  try {
-    var numEvent1 = allData_in[0].Event1.length;
-    var event1Costs = new Array(numEvent1);
-    var event1Ratings = new Array(numEvent1);
-    event1Costs = allData_in[0].Event1.map(a => a.cost);
-    event1Ratings = allData_in[0].Event1.map(a => a.rating);
+      } // end maxIter loop
 
-    var numBreakfast = allData_in[1].Breakfast.length;
-    var breakfastCosts = new Array(numBreakfast);
-    var breakfastRatings = new Array(numBreakfast);
-    breakfastCosts = allData_in[1].Breakfast.map(a => a.cost);
-    breakfastRatings = allData_in[1].Breakfast.map(a => a.rating);
 
-    var numEvent2 = allData_in[2].Event2.length;
-    var event2Costs = new Array(numEvent2);
-    var event2Ratings = new Array(numEvent2);
-    event2Costs = allData_in[2].Event2.map(a => a.cost);
-    event2Ratings = allData_in[2].Event2.map(a => a.rating);
+      // console.log(iBestItinerary);
+      // console.log("best rating: " + bestRating);
+      // console.log("best cost: " + bestCost);
+      // console.log()
+      // console.log(iBestItinerary[0]);
+      bestItinerary[0] = allData[0].Event1[iBestItinerary[0]].name;
+      bestItinerary[1] = allData[1].Breakfast[iBestItinerary[1]].name;
+      bestItinerary[2] = allData[2].Event2[iBestItinerary[2]].name;
+      bestItinerary[3] = allData[3].Lunch[iBestItinerary[3]].name;
+      bestItinerary[4] = allData[4].Event3[iBestItinerary[4]].name;
+      bestItinerary[5] = allData[5].Dinner[iBestItinerary[5]].name;
+      bestItinerary[6] = allData[6].Event4[iBestItinerary[6]].name;
 
-    var numLunch = allData_in[3].Lunch.length;
-    var lunchCosts = new Array(numLunch);
-    var lunchRatings = new Array(numLunch);
-    lunchCosts = allData_in[3].Lunch.map(a => a.cost);
-    lunchRatings = allData_in[3].Lunch.map(a => a.rating);
+      console.log(bestItinerary);
+      return bestItinerary;
+  },
 
-    var numEvent3 = allData_in[4].Event3.length;
-    var event3Costs = new Array(numEvent3);
-    var event3Ratings = new Array(numEvent3);
-    event3Costs = allData_in[4].Event3.map(a => a.cost);
-    event3Ratings = allData_in[4].Event3.map(a => a.rating);
+  preProcessData: function(allData_in) {
 
-    var numDinner = allData_in[5].Dinner.length;
-    var dinnerCosts = new Array(numDinner);
-    var dinnerRatings = new Array(numDinner);
-    dinnerCosts = allData_in[5].Dinner.map(a => a.cost);
-    dinnerRatings = allData_in[5].Dinner.map(a => a.rating);
+    // Initialize return obj (unnecessary?)
+    var parsedDataObj = {
+      numItemsArrayOut: [0, 0, 0, 0, 0, 0, 0],
+      Event1Cost: [0],
+      Event1Rating: [0],
+      BreakfastCost: [0],
+      BreakfastRating: [0],
+      Event2Cost: [0],
+      Event2Rating: [0],
+      LunchCost: [0],
+      LunchRating: [0],
+      Event3Cost: [0],
+      Event3Rating: [0],
+      DinnerCost: [0],
+      DinnerRating: [0],
+      Event4Cost: [0],
+      Event4Rating: [0]
+    };
+    try {
+      var numEvent1 = allData_in[0].Event1.length;
+      var event1Costs = new Array(numEvent1);
+      var event1Ratings = new Array(numEvent1);
+      event1Costs = allData_in[0].Event1.map(a => a.cost);
+      event1Ratings = allData_in[0].Event1.map(a => a.rating);
 
-    var numEvent4 = allData_in[6].Event4.length;
-    var event4Costs = new Array(numEvent4);
-    var event4Ratings = new Array(numEvent4);
-    event4Costs = allData_in[6].Event4.map(a => a.cost);
-    event4Ratings = allData_in[6].Event4.map(a => a.rating);
+      var numBreakfast = allData_in[1].Breakfast.length;
+      var breakfastCosts = new Array(numBreakfast);
+      var breakfastRatings = new Array(numBreakfast);
+      breakfastCosts = allData_in[1].Breakfast.map(a => a.cost);
+      breakfastRatings = allData_in[1].Breakfast.map(a => a.rating);
 
-    parsedDataObj = {
-      numItemsArrayOut: [numEvent1, numBreakfast, numEvent2, numLunch, numEvent3, numDinner, numEvent4],
-      Event1Cost: event1Costs,
-      Event1Rating: event1Ratings,
-      BreakfastCost: breakfastCosts,
-      BreakfastRating: breakfastRatings,
-      Event2Cost: event2Costs,
-      Event2Rating: event2Ratings,
-      LunchCost: lunchCosts,
-      LunchRating: lunchRatings,
-      Event3Cost: event3Costs,
-      Event3Rating: event3Ratings,
-      DinnerCost: dinnerCosts,
-      DinnerRating: dinnerRatings,
-      Event4Cost: event4Costs,
-      Event4Rating: event4Ratings
+      var numEvent2 = allData_in[2].Event2.length;
+      var event2Costs = new Array(numEvent2);
+      var event2Ratings = new Array(numEvent2);
+      event2Costs = allData_in[2].Event2.map(a => a.cost);
+      event2Ratings = allData_in[2].Event2.map(a => a.rating);
+
+      var numLunch = allData_in[3].Lunch.length;
+      var lunchCosts = new Array(numLunch);
+      var lunchRatings = new Array(numLunch);
+      lunchCosts = allData_in[3].Lunch.map(a => a.cost);
+      lunchRatings = allData_in[3].Lunch.map(a => a.rating);
+
+      var numEvent3 = allData_in[4].Event3.length;
+      var event3Costs = new Array(numEvent3);
+      var event3Ratings = new Array(numEvent3);
+      event3Costs = allData_in[4].Event3.map(a => a.cost);
+      event3Ratings = allData_in[4].Event3.map(a => a.rating);
+
+      var numDinner = allData_in[5].Dinner.length;
+      var dinnerCosts = new Array(numDinner);
+      var dinnerRatings = new Array(numDinner);
+      dinnerCosts = allData_in[5].Dinner.map(a => a.cost);
+      dinnerRatings = allData_in[5].Dinner.map(a => a.rating);
+
+      var numEvent4 = allData_in[6].Event4.length;
+      var event4Costs = new Array(numEvent4);
+      var event4Ratings = new Array(numEvent4);
+      event4Costs = allData_in[6].Event4.map(a => a.cost);
+      event4Ratings = allData_in[6].Event4.map(a => a.rating);
+
+      parsedDataObj = {
+        numItemsArrayOut: [numEvent1, numBreakfast, numEvent2, numLunch, numEvent3, numDinner, numEvent4],
+        Event1Cost: event1Costs,
+        Event1Rating: event1Ratings,
+        BreakfastCost: breakfastCosts,
+        BreakfastRating: breakfastRatings,
+        Event2Cost: event2Costs,
+        Event2Rating: event2Ratings,
+        LunchCost: lunchCosts,
+        LunchRating: lunchRatings,
+        Event3Cost: event3Costs,
+        Event3Rating: event3Ratings,
+        DinnerCost: dinnerCosts,
+        DinnerRating: dinnerRatings,
+        Event4Cost: event4Costs,
+        Event4Rating: event4Ratings
+      }
+      return parsedDataObj;
     }
-    return parsedDataObj;
-  }
-   catch (err) {
-     //error message here
-    return 0;
+     catch (err) {
+       //error message here
+      return 0;
+     }
+ },
+ // Initialize population (step one of GA)
+ initializePopulation: function (popSize_in, itinerarySize_in, numItemsArray_in) {
+   // Initialization
+   var itineraryPop = new Array(popSize_in);
+   var itinerary = new Array(itinerarySize_in);
+
+   for (var i = 0; i < popSize_in; i++) {
+     // Randomly pick an itinerary item from each category
+     iEvent1 = randomIntFromInterval(0, numItemsArray_in[0] - 1);
+     iBreakfast = randomIntFromInterval(0, numItemsArray_in[1] - 1);
+     iEvent2 = randomIntFromInterval(0, numItemsArray_in[2] - 1);
+     iLunch = randomIntFromInterval(0, numItemsArray_in[3] - 1);
+     iEvent3 = randomIntFromInterval(0, numItemsArray_in[4] - 1);
+     iDinner = randomIntFromInterval(0, numItemsArray_in[5] - 1);
+     iEvent4 = randomIntFromInterval(0, numItemsArray_in[6] - 1);
+
+     // Create the randomized itineraries and generate the population of itineraries
+     itinerary = [iEvent1, iBreakfast, iEvent2, iLunch, iEvent3, iDinner, iEvent4];
+     itineraryPop[i] = itinerary;
    }
-}
+   return itineraryPop;
+ }
 
 
-// categories: breakfast, lunch, dinner, event
-function doGA(itineraries) {
-
-  // Format data
-  var parsedDataAll = preProcessData(allData);
-  if (parsedDataAll == 0) return 0;
-
-  // Initialize constants for GA
-  var maxIter = 20;                               // max iterations
-  var itinerarySize = 7;                          // number of things to do in the day
-  var elitek = 1;                                 // number of elite iteneraries passed onto the next generation
-  var popSize = 10 + elitek;                      // population size for each generation
-  var crossRate = 50;                             // crossover rate (%)
-  var mutateRate = 85;                            // mutation rate (%)
-  var numItemsArray = new Array(itinerarySize);
-  numItemsArray = parsedDataAll.numItemsArrayOut.slice();
-  var tempItinerary = new Array(itinerarySize);
-  var childItinerary = new Array(itinerarySize);
-  var itineraryPopulation = new Array(popSize);   // population array (array of arrays)
-  var newItineraryPop = new Array(popSize);
-  var allItineraryRatings = new Array(popSize);
-  var allItineraryRatingsSum = 0;
-  var bestItinerary = new Array(itinerarySize);
-  var crossedItineraryArray;
-  var iBestItinerary;
-  var bestItineraryObj;
-  var bestRating;
-  var bestCost;
-  var irand;
-
-  // Create first population to initialize GA
-  itineraryPopulation = initializePopulation(popSize, itinerarySize, numItemsArray);
-  console.log(itineraryPopulation);
-
-  // Find the "fittest" itinerary and return some itinerary stats
-  bestItineraryObj       = findBestItinerary(itineraryPopulation, parsedDataAll);
-  iBestItinerary         = bestItineraryObj.bestItineraryOut;
-  bestRating             = bestItineraryObj.bestItineraryRatingOut;
-  bestCost               = bestItineraryObj.bestItineraryCostOut;
-  allItineraryRatings    = bestItineraryObj.allItineraryRatingsOut;
-  allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
-
-  for (var i = 0; i < maxIter; i++) {
-    // Construct new population of itineraries
-    popCnt = 0;
-
-    // Populate with the elite itineraries first
-    for (var j = 0; j < elitek; j++) {
-      newItineraryPop[j] = [iBestItinerary[0],
-      iBestItinerary[1],
-      iBestItinerary[2],
-      iBestItinerary[3],
-      iBestItinerary[4],
-      iBestItinerary[5],
-      iBestItinerary[6]];
-      popCnt = popCnt + 1;
-    }
-
-    // Breed/select other itineraries
-    while (popCnt < popSize) {
-
-      // Pick two itineraries
-      var iItineraryPick1 = 0;
-      var iItineraryPick2 = 0;
-
-      // Use roulette selection or randomized
-      var pick = randomIntFromInterval(1, 2);
-      if (pick == 1) {
-        iItineraryPick1 = rouletteSelect(allItineraryRatings, allItineraryRatingsSum);
-        iItineraryPick2 = rouletteSelect(allItineraryRatings, allItineraryRatingsSum);
-      }
-      else {
-        iItineraryPick1 = randomIntFromInterval(0, popSize - 1);
-        iItineraryPick2 = pickRandomItineraryItemExcluding(popSize, iItineraryPick1);
-      }
-
-      var tempItinerary1 = itineraryPopulation[iItineraryPick1];
-      var tempItinerary2 = itineraryPopulation[iItineraryPick2];
-
-      // Crossover the two itineraries if randomly chosen to do so
-      irand = randomIntFromInterval(1, 100);
-      if (irand < crossRate) {
-        crossedItineraryArray = crossover(tempItinerary1, tempItinerary2);
-        tempItinerary1 = [crossedItineraryArray[0][0], crossedItineraryArray[0][1], crossedItineraryArray[0][2], crossedItineraryArray[0][3],
-        crossedItineraryArray[0][4], crossedItineraryArray[0][5], crossedItineraryArray[0][6]];
-        tempItinerary2 = [crossedItineraryArray[1][0], crossedItineraryArray[1][1], crossedItineraryArray[1][2], crossedItineraryArray[1][3],
-        crossedItineraryArray[1][4], crossedItineraryArray[1][5], crossedItineraryArray[1][6]];
-      }
-
-      // Mutate the two itineraries if randomly chosen to do so
-      irand = randomIntFromInterval(1, 100);
-      if (irand < mutateRate) {
-        tempItinerary1 = mutate(tempItinerary1, numItemsArray);
-      }
-
-      irand = randomIntFromInterval(1, 100);
-      if (irand < mutateRate) {
-        tempItinerary2 = mutate(tempItinerary2, numItemsArray);
-      }
-
-      // Append newly bred itineraries to current population
-      newItineraryPop[popCnt] = [tempItinerary1[0], tempItinerary1[1], tempItinerary1[2], tempItinerary1[3],
-      tempItinerary1[4], tempItinerary1[5], tempItinerary1[6]];
-      newItineraryPop[popCnt + 1] = [tempItinerary2[0], tempItinerary2[1], tempItinerary2[2], tempItinerary2[3],
-      tempItinerary2[4], tempItinerary2[5], tempItinerary2[6]];
-      popCnt = popCnt + 2;
-    } // end while loop
-
-
-
-    itineraryPopulation = newItineraryPop.slice(0);
-    bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
-    iBestItinerary = bestItineraryObj.bestItineraryOut;
-    bestRating = bestItineraryObj.bestItineraryRatingOut;
-    console.log("best rating at " + i + "th iteration: " + bestRating);
-    console.log("best cost at " + i + "th iteration: " + bestCost);
-    bestCost = bestItineraryObj.bestItineraryCostOut;
-    allItineraryRatings = bestItineraryObj.allItineraryRatingsOut;
-    allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
-    //console.log(allItineraryRatings)
-
-  } // end maxIter loop
-
-
-  console.log(iBestItinerary);
-  console.log("best rating: " + bestRating);
-  console.log("best cost: " + bestCost);
-  console.log()
-  console.log(iBestItinerary[0]);
-  bestItinerary[0] = allData[0].Event1[iBestItinerary[0]].name;
-  bestItinerary[1] = allData[1].Breakfast[iBestItinerary[1]].name;
-  bestItinerary[2] = allData[2].Event2[iBestItinerary[2]].name;
-  bestItinerary[3] = allData[3].Lunch[iBestItinerary[3]].name;
-  bestItinerary[4] = allData[4].Event3[iBestItinerary[4]].name;
-  bestItinerary[5] = allData[5].Dinner[iBestItinerary[5]].name;
-  bestItinerary[6] = allData[6].Event4[iBestItinerary[6]].name;
-
-  console.log(bestItinerary);
-  return bestItinerary;
-}
+}// GA.js
 
 // Generate a random number from min to max inclusive
 function randomIntFromInterval(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// Initialize population (step one of GA)
-function initializePopulation(popSize_in, itinerarySize_in, numItemsArray_in) {
-  // Initialization
-  var itineraryPop = new Array(popSize_in);
-  var itinerary = new Array(itinerarySize_in);
-
-  for (var i = 0; i < popSize_in; i++) {
-    // Randomly pick an itinerary item from each category
-    iEvent1 = randomIntFromInterval(0, numItemsArray_in[0] - 1);
-    iBreakfast = randomIntFromInterval(0, numItemsArray_in[1] - 1);
-    iEvent2 = randomIntFromInterval(0, numItemsArray_in[2] - 1);
-    iLunch = randomIntFromInterval(0, numItemsArray_in[3] - 1);
-    iEvent3 = randomIntFromInterval(0, numItemsArray_in[4] - 1);
-    iDinner = randomIntFromInterval(0, numItemsArray_in[5] - 1);
-    iEvent4 = randomIntFromInterval(0, numItemsArray_in[6] - 1);
-
-    // Create the randomized itineraries and generate the population of itineraries
-    itinerary = [iEvent1, iBreakfast, iEvent2, iLunch, iEvent3, iDinner, iEvent4];
-    itineraryPop[i] = itinerary;
-  }
-  return itineraryPop;
 }
 
 // Pick a random index and have the ability to exclude ONE index in an array of length numCategoryItems
@@ -342,6 +285,8 @@ function isInArray(value, array) {
 
 // Determine the "fittest" itinerary
 function findBestItinerary(itineraryPop_in, allData_in) {
+  var BUDGETMIN = 85;
+  var BUDGETMAX = 100;
   var budgetmax = BUDGETMAX;
   var budgetmin = BUDGETMIN;
   var maxItineraryRating = 0;
@@ -575,7 +520,4 @@ function mutate(itinerary_in, numItemsArray_in) {
   }
 
   return mutatedItinerary;
-}
-res.send()
-}
 }

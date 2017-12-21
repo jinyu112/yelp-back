@@ -115,9 +115,7 @@ yelpRouter.post('/', (req, res, next) => {
                     count ++;
 
                     if(count == 7) {
-                        // genAlgo.doGA(itineraries);
-                        console.log(itineraries[0].Event1);
-
+                        res.send(genAlgo.doGA(itineraries));
                     }
                 }
 

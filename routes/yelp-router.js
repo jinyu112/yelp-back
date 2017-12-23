@@ -8,16 +8,7 @@ const genAlgo     = require('../GA.js');
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 let token;
-let client;
-
-yelp.accessToken(clientId, clientSecret)
-    .then(response => {
-        token = response.jsonBody.access_token;
-        client = yelp.client(token);
-    })
-    .catch(e => {
-        console.log(e);
-    });
+let client = yelp.client(process.env.API_KEY);
 
 //Search for business
 yelpRouter.post('/', (req, res, next) => {
@@ -118,7 +109,6 @@ yelpRouter.post('/', (req, res, next) => {
                         res.send(genAlgo.doGA(itineraries));
                     }
                 }
-
 
             } else {
                 res.send('No Businesses found');

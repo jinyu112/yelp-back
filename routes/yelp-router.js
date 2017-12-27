@@ -42,19 +42,19 @@ yelpRouter.post('/', (req, res, next) => {
                 response.jsonBody.businesses.forEach(business => {
                     switch(business.price) {
                         case '$':
-                            business.price = 1;
+                            business.price = 10;
                             break;
                         case '$$':
-                            business.price = 2;
+                            business.price = 20;
                             break;
                         case '$$$':
-                            business.price = 3;
+                            business.price = 46;
                             break;
                         case '$$$$':
-                            business.price = 4;
+                            business.price = 65;
                             break;
                         default:
-                            business.price = 2;
+                            business.price = 20;
                     }
                     var item = {
                         name: business.name,

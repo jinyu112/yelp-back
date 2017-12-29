@@ -7,9 +7,9 @@ module.exports = {
       if (parsedDataAll == 0) return 0;
 
       // Initialize constants for GA
-      var maxIter = 100;                              // max iterations
+      var maxIter = 100*2; //100;                              // max iterations
       var itinerarySize = 7;                          // number of things to do in the day
-      var elitek = 1;                                 // number of elite iteneraries passed onto the next generation
+      var elitek = 5; //1                                // number of elite iteneraries passed onto the next generation
       var popSize = 60 + elitek;                      // population size for each generation
       var crossRate = 50;                             // crossover rate (%)
       var mutateRate = 85;                            // mutation rate (%)
@@ -31,8 +31,8 @@ module.exports = {
 
       // Create first population to initialize GA
       itineraryPopulation = this.initializePopulation(popSize, itinerarySize, numItemsArray);
-      console.log("Initial Population:")
-      console.log(itineraryPopulation);
+      //console.log("Initial Population:")
+      //console.log(itineraryPopulation);
       console.log("----------")
 
       // Find the "fittest" itinerary and return some itinerary stats
@@ -112,19 +112,24 @@ module.exports = {
         itineraryPopulation = newItineraryPop.slice(0);
         bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
         iBestItinerary = bestItineraryObj.bestItineraryOut;
-        bestRating = bestItineraryObj.bestItineraryRatingOut;
-        console.log("best rating at " + i + "th iteration: " + bestRating);
-        console.log("best cost at " + i + "th iteration: " + bestCost);
+        bestRating = bestItineraryObj.bestItineraryRatingOut;          
         bestCost = bestItineraryObj.bestItineraryCostOut;
         allItineraryRatings = bestItineraryObj.allItineraryRatingsOut;
         allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
 
+        if (i % 5 == 0) {
+        console.log("best rating at " + i + "th iteration: " + bestRating);
+        console.log("best cost at " + i + "th iteration: " + bestCost);    
+        console.log("population rating sum: " + i + "th iteration: " + allItineraryRatingsSum);
+        }
+
       } // end maxIter loop
       console.log("----------")
-      console.log("End population")
-      console.log(itineraryPopulation)
+      //console.log("End population")
+      //console.log(itineraryPopulation)
       console.log("best rating: " + bestRating);
       console.log("best cost: " + bestCost);
+      console.log("population rating sum: " + allItineraryRatingsSum);
       bestItinerary[0] = allData[0].Event1[iBestItinerary[0]].name + " - $" + allData[0].Event1[iBestItinerary[0]].cost + ", Rating: " + allData[0].Event1[iBestItinerary[0]].rating;
       bestItinerary[1] = allData[1].Breakfast[iBestItinerary[1]].name + " - $" + allData[1].Breakfast[iBestItinerary[1]].cost + ", Rating: " + allData[1].Breakfast[iBestItinerary[1]].rating;
       bestItinerary[2] = allData[2].Event2[iBestItinerary[2]].name + " - $" + allData[2].Event2[iBestItinerary[2]].cost + ", Rating: " + allData[2].Event2[iBestItinerary[2]].rating;
@@ -280,8 +285,8 @@ function isInArray(value, array) {
 
 // Determine the "fittest" itinerary
 function findBestItinerary(itineraryPop_in, allData_in) {  
-  var budgetmax = 101;
-  var budgetmin = 80;
+  var budgetmax = 73;
+  var budgetmin = 50;
   var maxItineraryRating = 0;
   var itineraryRating = 0;
   var popLen = itineraryPop_in.length;

@@ -1,6 +1,6 @@
 module.exports = {
     // categories: breakfast, lunch, dinner, event
-    doGA: function(allData) {
+    doGA: function(allData, budgetmax_in, budgetmin_in) {
 
       // Format data
       var parsedDataAll = this.preProcessData(allData);
@@ -28,6 +28,10 @@ module.exports = {
       var bestRating;
       var bestCost;
       var irand;
+      var budgetmax = parseFloat(budgetmax_in); // error check?
+      var budgetmin = parseFloat(budgetmin_in); // error check?
+      console.log("budgetmax: " + budgetmax)
+      console.log("budgetmin: " + budgetmin)
 
       // Create first population to initialize GA
       itineraryPopulation = this.initializePopulation(popSize, itinerarySize, numItemsArray);
@@ -36,7 +40,7 @@ module.exports = {
       console.log("----------")
 
       // Find the "fittest" itinerary and return some itinerary stats
-      bestItineraryObj       = findBestItinerary(itineraryPopulation, parsedDataAll);      
+      bestItineraryObj       = findBestItinerary(itineraryPopulation, parsedDataAll, budgetmax, budgetmin);      
       iBestItinerary         = bestItineraryObj.bestItineraryOut;
       bestRating             = bestItineraryObj.bestItineraryRatingOut;
       bestCost               = bestItineraryObj.bestItineraryCostOut;
@@ -110,7 +114,7 @@ module.exports = {
         } // end while loop
 
         itineraryPopulation = newItineraryPop.slice(0);
-        bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll);
+        bestItineraryObj = findBestItinerary(itineraryPopulation, parsedDataAll, budgetmax, budgetmin);
         iBestItinerary = bestItineraryObj.bestItineraryOut;
         bestRating = bestItineraryObj.bestItineraryRatingOut;          
         bestCost = bestItineraryObj.bestItineraryCostOut;
@@ -295,9 +299,9 @@ function isInArray(value, array) {
 }
 
 // Determine the "fittest" itinerary
-function findBestItinerary(itineraryPop_in, allData_in) {  
-  var budgetmax = 100;
-  var budgetmin = 40;
+function findBestItinerary(itineraryPop_in, allData_in, budygetmax_in, budgetmin_in) {  
+  var budgetmax = budygetmax_in;
+  var budgetmin = budgetmin_in;
   var maxItineraryRating = 0;
   var itineraryRating = 0;
   var popLen = itineraryPop_in.length;

@@ -40,8 +40,8 @@ yelpRouter.post('/', (req, res, next) => {
         console.log(e)
     }).then(function (meetupEvents) {
         var itineraries = formatAllData(yelpItemsGlobal,meetupEvents);
-        if (!isEmpty(itineraries)) {
-            res.send(genAlgo.doGA(itineraries));
+        if (!isEmpty(itineraries)) {            
+            res.send(genAlgo.doGA(itineraries, req.body.budgetmax, req.body.budgetmin));
         }
     },function (err) {
         return err;
@@ -169,7 +169,7 @@ function getYelpDataLength(term_in, location_in) {
             limit: 50,
         }).then(response => {
             var total = response.jsonBody.total;
-            console.log(total)
+            console.log("yelp total: " + total)
             resolve(total);
         }).catch(e => {
             console.log(e);

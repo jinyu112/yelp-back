@@ -24,7 +24,7 @@ yelpRouter.post('/', (req, res, next) => {
 
     // 1. fulfilled promise returned from getYelpDataLength is the total businesses returned from the query
     getYelpDataLength(req.body.term, req.body.location).then(function (yelpTotal) {
-        // 2. fulfilled promise returned from getYelpData is an array of object arrays
+        // 2. fulfilled promise returned from getYelpData is an array of object arrays        
         return getYelpData(yelpTotal, req.body.term, req.body.location);
     }, function (err) {
         return err;
@@ -169,6 +169,7 @@ function getYelpDataLength(term_in, location_in) {
             limit: 50,
         }).then(response => {
             var total = response.jsonBody.total;
+            console.log(total)
             resolve(total);
         }).catch(e => {
             console.log(e);
@@ -185,7 +186,6 @@ function getYelpData(total_in, term_in, location_in) {
         var businesses = [];
         var itineraries = [];
         var numOfBiz = Math.floor(total / 50);
-        var iSetNoneItem = Math.floor(numOfBiz / 3);
 
         for (var i = 0; i < total; i += 50) {
             client.search({
@@ -218,11 +218,7 @@ function getYelpData(total_in, term_in, location_in) {
                     }
                     businesses.push(item);
                 });
-                count++;
-
-                if (count == numOfBiz) {
-                    resolve(businesses);
-                }
+                resolve(businesses);
 
             }).catch(e => {
                 console.log(e);

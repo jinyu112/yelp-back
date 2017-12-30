@@ -296,7 +296,7 @@ function isInArray(value, array) {
 
 // Determine the "fittest" itinerary
 function findBestItinerary(itineraryPop_in, allData_in) {  
-  var budgetmax = 50;
+  var budgetmax = 100;
   var budgetmin = 40;
   var maxItineraryRating = 0;
   var itineraryRating = 0;

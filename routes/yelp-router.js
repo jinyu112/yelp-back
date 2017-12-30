@@ -186,6 +186,7 @@ function getYelpData(total_in, term_in, location_in) {
         var businesses = [];
         var itineraries = [];
         var numOfBiz = Math.floor(total / 50);
+        var count = 0;
 
         for (var i = 0; i < total; i += 50) {
             client.search({
@@ -218,7 +219,14 @@ function getYelpData(total_in, term_in, location_in) {
                     }
                     businesses.push(item);
                 });
-                resolve(businesses);
+                count++;
+
+                if (count == Math.floor(total/50) ) {
+                    resolve(businesses);
+                }
+                else if (numOfBiz == 0) {
+                    resolve(businesses);
+                }
 
             }).catch(e => {
                 console.log(e);

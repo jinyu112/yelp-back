@@ -117,19 +117,20 @@ module.exports = {
         allItineraryRatings = bestItineraryObj.allItineraryRatingsOut;
         allItineraryRatingsSum = bestItineraryObj.allItineraryValSumOut;
 
-        if (i % 5 == 0) {
+        if (i % 20 == 0) {
         console.log("best rating at " + i + "th iteration: " + bestRating);
         console.log("best cost at " + i + "th iteration: " + bestCost);    
         console.log("population rating sum: " + i + "th iteration: " + allItineraryRatingsSum);
-        }
+      }
 
-      } // end maxIter loop
-      console.log("----------")
-      //console.log("End population")
-      //console.log(itineraryPopulation)
-      console.log("best rating: " + bestRating);
-      console.log("best cost: " + bestCost);
-      console.log("population rating sum: " + allItineraryRatingsSum);
+    } // end maxIter loop
+    console.log("----------")
+    //console.log("End population")
+    //console.log(itineraryPopulation)
+    console.log("best rating: " + bestRating);
+    console.log("best cost: " + bestCost);
+    console.log("population rating sum: " + allItineraryRatingsSum);
+    if (bestRating > 0) {
       bestItinerary[0] = allData[0].Event1[iBestItinerary[0]].name + " - $" + allData[0].Event1[iBestItinerary[0]].cost + ", Rating: " + allData[0].Event1[iBestItinerary[0]].rating;
       bestItinerary[1] = allData[1].Breakfast[iBestItinerary[1]].name + " - $" + allData[1].Breakfast[iBestItinerary[1]].cost + ", Rating: " + allData[1].Breakfast[iBestItinerary[1]].rating;
       bestItinerary[2] = allData[2].Event2[iBestItinerary[2]].name + " - $" + allData[2].Event2[iBestItinerary[2]].cost + ", Rating: " + allData[2].Event2[iBestItinerary[2]].rating;
@@ -137,10 +138,20 @@ module.exports = {
       bestItinerary[4] = allData[4].Event3[iBestItinerary[4]].name + " - $" + allData[4].Event3[iBestItinerary[4]].cost + ", Rating: " + allData[4].Event3[iBestItinerary[4]].rating;
       bestItinerary[5] = allData[5].Dinner[iBestItinerary[5]].name + " - $" + allData[5].Dinner[iBestItinerary[5]].cost + ", Rating: " + allData[5].Dinner[iBestItinerary[5]].rating;
       bestItinerary[6] = allData[6].Event4[iBestItinerary[6]].name + " - $" + allData[6].Event4[iBestItinerary[6]].cost + ", Rating: " + allData[6].Event4[iBestItinerary[6]].rating;
-      return bestItinerary;
+    }
+    else {
+      bestItinerary[0] = 'No Itineraries found.';
+      bestItinerary[1] = '';
+      bestItinerary[2] = '';
+      bestItinerary[3] = '';
+      bestItinerary[4] = '';
+      bestItinerary[5] = '';
+      bestItinerary[6] = '';
+    }
+    return bestItinerary;
   },
 
-  preProcessData: function(allData_in) {
+  preProcessData: function (allData_in) {
 
     // Initialize return obj (unnecessary?)
     var parsedDataObj = {
@@ -285,8 +296,8 @@ function isInArray(value, array) {
 
 // Determine the "fittest" itinerary
 function findBestItinerary(itineraryPop_in, allData_in) {  
-  var budgetmax = 73;
-  var budgetmin = 50;
+  var budgetmax = 50;
+  var budgetmin = 40;
   var maxItineraryRating = 0;
   var itineraryRating = 0;
   var popLen = itineraryPop_in.length;

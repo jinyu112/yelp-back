@@ -277,15 +277,17 @@ function randomIntFromInterval(min, max) {
 function pickRandomItineraryItemExcluding(numCategoryItems, iExcludeItem) { // Note numCategoryItems is the length of the vector
   // iExcludeItem is the INDEX of the vector
   iItineraryItem = randomIntFromInterval(0, numCategoryItems - 1); // from 0 to length of array minus 1
-  if (iItineraryItem == iExcludeItem) {
-    if (iItineraryItem == 0) {
-      iItineraryItem++;
-    }
-    else if (iItineraryItem == (numCategoryItems - 1)) {
-      iItineraryItem--;
-    }
-    else {
-      iItineraryItem++;
+  if (numCategoryItems != 1) {
+    if (iItineraryItem == iExcludeItem) {
+      if (iItineraryItem == 0) {
+        iItineraryItem++;
+      }
+      else if (iItineraryItem == (numCategoryItems - 1)) {
+        iItineraryItem--;
+      }
+      else {
+        iItineraryItem++;
+      }
     }
   }
   return iItineraryItem;
@@ -325,11 +327,14 @@ function findBestItinerary(itineraryPop_in, allData_in, budygetmax_in, budgetmin
     }
     // Otherwise, calculate the total rating of the itinerary
     else {
+      //console.log(itineraryPop_in[i])
       itineraryRating = getTotalRating(itineraryPop_in[i], allData_in);
+      //console.log(itineraryRating)
     }
 
     // Save all the total ratings for later use
     allItineraryRatings[i] = itineraryRating;
+    
 
     // Save the entire population's total rating
     allItineraryValSum = allItineraryValSum + itineraryRating;
